@@ -289,6 +289,47 @@ class JbuilderTemplateTest < ActionView::TestCase
     assert_equal "Miss", result["test2"]
   end
 
+  test "fragment caching a JSON object with force option" do
+    undef_context_methods :fragment_name_with_digest, :cache_fragment_name
+
+    jbuild <<-JBUILDER
+      json.cache! "cachekey" do
+        json.test1 "Value"
+      end
+      json.cache! "cachekey" do
+        json.test2 "Value"
+      end
+      json.cache! "cachekey" do
+        json.test3 "Value"
+      end
+      json.cache! "cachekey" do
+        json.test4 "Value"
+      end
+    JBUILDER
+
+    result = jbuild(<<-JBUILDER)
+      json.cache! "cachekey", force: false do
+        json.test1 "New Value"
+      end
+      json.cache! "cachekey", force: true do
+        json.test2 "New Value"
+      end
+      json.cache! "cachekey" do
+        json.test3 "Cache Hit"
+      end
+      json.cache! "cachekey", force: true do
+        json.test4 "Forced Hit"
+      end
+    JBUILDER
+
+    puts result
+
+    assert_equal "Value", result["test1"]
+    assert_equal "New Value", result["test2"]
+    assert_equal nil, result["test3"]
+    assert_equal "Forced Hit", result["test4"]
+  end
+
   test "fragment caching deserializes an array" do
     undef_context_methods :fragment_name_with_digest, :cache_fragment_name
 

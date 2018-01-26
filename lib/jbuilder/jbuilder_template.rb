@@ -131,7 +131,7 @@ class JbuilderTemplate < Jbuilder
   def _cache_fragment_for(key, options, &block)
     key = _cache_key(key, options)
     force = options[:force].present?
-    (!force && _read_fragment_cache(key, options, &block)) || _write_fragment_cache(key, options, &block)
+    (!force && _read_fragment_cache(key, options)) || _write_fragment_cache(key, options, &block)
   end
 
   def _read_fragment_cache(key, options = nil)
